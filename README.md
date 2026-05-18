@@ -9,128 +9,128 @@ This tool automates the enrichment of security events with external threat intel
 ## Features
 
 - **IP Address Enrichment**: Geolocation data, ISP information, and threat reputation scoring via AbuseIPDB
-- - **Domain Enrichment**: Suspicious TLD detection, domain characteristics analysis
-  - - **File Hash Enrichment**: VirusTotal integration for malware detection and classification
-    - - **User Context Enrichment**: Integration points for Active Directory/Azure AD data
-      - - **Risk Score Calculation**: Automated scoring based on aggregated enrichment signals
-       
-        - ## Prerequisites
-       
-        - - Python 3.8+
-          - - Microsoft Sentinel workspace (Log Analytics Workspace ID and Key)
-            - - API keys (optional but recommended):
-              -   - [AbuseIPDB](https://www.abuseipdb.com/) - IP reputation checks
-                  -   - [VirusTotal](https://www.virustotal.com/) - File hash analysis
-                   
-                      - ## Installation
-                   
-                      - ```bash
-                        git clone https://github.com/IsaacInCyber/sentinel-siem-enrichment.git
-                        cd sentinel-siem-enrichment
-                        pip install requests
-                        ```
+- **Domain Enrichment**: Suspicious TLD detection, domain characteristics analysis
+- **File Hash Enrichment**: VirusTotal integration for malware detection and classification
+- **User Context Enrichment**: Integration points for Active Directory/Azure AD data
+- **Risk Score Calculation**: Automated scoring based on aggregated enrichment signals
 
-                        ## Configuration
+## Prerequisites
 
-                        Update the `CONFIG` dictionary in `enrichment.py` with your credentials:
+- Python 3.8+
+- Microsoft Sentinel workspace (Log Analytics Workspace ID and Key)
+- API keys (optional but recommended):
+  - [AbuseIPDB](https://www.abuseipdb.com/) - IP reputation checks
+  - [VirusTotal](https://www.virustotal.com/) - File hash analysis
 
-                        ```python
-                        CONFIG = {
-                            "workspace_id": "YOUR_WORKSPACE_ID",
-                            "shared_key": "YOUR_SHARED_KEY",
-                            "abuseipdb_key": "YOUR_ABUSEIPDB_KEY",
-                            "virustotal_key": "YOUR_VIRUSTOTAL_KEY"
-                        }
-                        ```
+## Installation
 
-                        ## Usage
+```bash
+git clone https://github.com/IsaacInCyber/sentinel-siem-enrichment.git
+cd sentinel-siem-enrichment
+pip install requests
+```
 
-                        ### Single Event Enrichment
+## Configuration
 
-                        ```python
-                        from enrichment import enrich_event
+Update the `CONFIG` dictionary in `enrichment.py` with your credentials:
 
-                        event = {
-                            "event_type": "suspicious_login",
-                            "source_ip": "185.220.101.1",
-                            "username": "john.doe",
-                            "domain": "suspicious-site.tk"
-                        }
+```python
+CONFIG = {
+    "workspace_id": "YOUR_WORKSPACE_ID",
+    "shared_key": "YOUR_SHARED_KEY",
+    "abuseipdb_key": "YOUR_ABUSEIPDB_KEY",
+    "virustotal_key": "YOUR_VIRUSTOTAL_KEY"
+}
+```
 
-                        enriched = enrich_event(event)
-                        print(f"Risk Score: {enriched['risk_score']}")
-                        ```
+## Usage
 
-                        ### Batch Processing
+### Single Event Enrichment
 
-                        ```python
-                        from enrichment import process_events
+```python
+from enrichment import enrich_event
 
-                        events = [event1, event2, event3]
-                        enriched_events = process_events(events)
-                        ```
+event = {
+    "event_type": "suspicious_login",
+    "source_ip": "185.220.101.1",
+    "username": "john.doe",
+    "domain": "suspicious-site.tk"
+}
 
-                        ### Individual Enrichment Functions
+enriched = enrich_event(event)
+print(f"Risk Score: {enriched['risk_score']}")
+```
 
-                        ```python
-                        from enrichment import enrich_ip, enrich_domain, enrich_file_hash
+### Batch Processing
 
-                        # IP enrichment with threat intel
-                        ip_data = enrich_ip("8.8.8.8", api_key="YOUR_ABUSEIPDB_KEY")
+```python
+from enrichment import process_events
 
-                        # Domain analysis
-                        domain_data = enrich_domain("example.tk")
+events = [event1, event2, event3]
+enriched_events = process_events(events)
+```
 
-                        # File hash lookup
-                        hash_data = enrich_file_hash("e3b0c44298fc1c14...", api_key="YOUR_VT_KEY")
-                        ```
+### Individual Enrichment Functions
 
-                        ## Output Format
+```python
+from enrichment import enrich_ip, enrich_domain, enrich_file_hash
 
-                        Enriched events include an `enrichments` object and calculated `risk_score`:
+# IP enrichment with threat intel
+ip_data = enrich_ip("8.8.8.8", api_key="YOUR_ABUSEIPDB_KEY")
 
-                        ```json
-                        {
-                          "event_type": "suspicious_login",
-                          "source_ip": "185.220.101.1",
-                          "enrichments": {
-                            "source_ip": {
-                              "country": "Germany",
-                              "isp": "Example ISP",
-                              "is_suspicious": true,
-                              "abuse_confidence_score": 85,
-                              "threat_level": "high"
-                            }
-                          },
-                          "risk_score": 50
-                        }
-                        ```
+# Domain analysis
+domain_data = enrich_domain("example.tk")
 
-                        ## Integration Options
+# File hash lookup
+hash_data = enrich_file_hash("e3b0c44298fc1c14...", api_key="YOUR_VT_KEY")
+```
 
-                        - **Azure Functions**: Deploy as a serverless function for real-time enrichment
-                        - - **Logic Apps**: Use as a connector in Sentinel playbooks
-                          - - **Scheduled Jobs**: Run as a cron job for batch processing
-                            - - **Sentinel Watchlists**: Export high-risk indicators to watchlists
-                             
-                              - ## Extending the Script
-                             
-                              - Add new enrichment sources by creating functions following this pattern:
-                             
-                              - ```python
-                                def enrich_custom_source(indicator: str, api_key: str = None) -> Dict:
-                                    enrichment = {
-                                        "indicator": indicator,
-                                        "enrichment_time": datetime.utcnow().isoformat()
-                                    }
-                                    # Add your enrichment logic here
-                                    return enrichment
-                                ```
+## Output Format
 
-                                ## License
+Enriched events include an `enrichments` object and calculated `risk_score`:
 
-                                MIT
+```json
+{
+  "event_type": "suspicious_login",
+  "source_ip": "185.220.101.1",
+  "enrichments": {
+    "source_ip": {
+      "country": "Germany",
+      "isp": "Example ISP",
+      "is_suspicious": true,
+      "abuse_confidence_score": 85,
+      "threat_level": "high"
+    }
+  },
+  "risk_score": 50
+}
+```
 
-                                ## Author
+## Integration Options
 
-                                Isaac Amoussou-Kpakpa - [IsaacInCyber](https://github.com/IsaacInCyber)
+- **Azure Functions**: Deploy as a serverless function for real-time enrichment
+- **Logic Apps**: Use as a connector in Sentinel playbooks
+- **Scheduled Jobs**: Run as a cron job for batch processing
+- **Sentinel Watchlists**: Export high-risk indicators to watchlists
+
+## Extending the Script
+
+Add new enrichment sources by creating functions following this pattern:
+
+```python
+def enrich_custom_source(indicator: str, api_key: str = None) -> Dict:
+    enrichment = {
+        "indicator": indicator,
+        "enrichment_time": datetime.utcnow().isoformat()
+    }
+    # Add your enrichment logic here
+    return enrichment
+```
+
+## License
+
+MIT
+
+## Author
+
+Isaac Amoussou-Kpakpa - [IsaacInCyber](https://github.com/IsaacInCyber)
